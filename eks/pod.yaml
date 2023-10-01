@@ -5,6 +5,7 @@ metadata:
   labels:
     app: tasky
 spec:
+  serviceAccountName: tasky
   containers:
   - name: tasky-container
     image: automationhoarder9921/tasky:latest
@@ -19,7 +20,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: tasky-service
+  name: tasky-cluster-service
 spec:
   type: ClusterIP
   selector:
@@ -34,7 +35,7 @@ kind: Service
 metadata:
   name: tasky-service
   annotations: # Add this section
-    service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-0fe1822966625131b"
+    service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-0ed9dd0d9b27e1264"
 spec:
   type: LoadBalancer
   selector:
@@ -43,3 +44,16 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 8080
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tasky-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: User
+  name: tasky
+  apiGroup: rbac.authorization.k8s.io
